@@ -1,0 +1,24 @@
+Gem
+===
+
+File uploading for Zend Framework 
+
+Introduction
+============ 
+
+BinderClip allows for easy file uploading and control over uploaded files. 
+BinderClip works as an plugin to Zend_Db_Table
+
+Installation
+============
+
+* Latest copy of Zend_Db_Table from the incubator.
+
+Credits
+=======
+
+BinderClip is inspired by PaperClip and UploadColumn that are available for 
+ruby on rails.
+
+License
+=======
