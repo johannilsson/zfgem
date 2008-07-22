@@ -50,7 +50,7 @@ class Gem_Image extends Gem_File
      */
     public function applyManipulations()
     {
-        $manipulator = new BinderClip_Manipulator_Image();
+        $manipulator = new Gem_Manipulator_Image();
         foreach ($this->_styles as $styleName => $styleOptions)
         {
             $manipulator->manipulate($this->realPath(), $this->path() . '/'. $this->filename($styleName), $styleOptions);
