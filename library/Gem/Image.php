@@ -17,7 +17,7 @@ class Gem_Image extends Gem_File
      *
      * @param string $realPath
      * @param string $originalFilename
-     * @param array $styles
+     * @param array  $styles
      */
     public function __construct($realPath, $originalFilename, array $styles)
     {
@@ -40,7 +40,7 @@ class Gem_Image extends Gem_File
      * Strips public and everything before from the real path, hopes that public
      * is the name of the public directory and nothing is named like that before.
      *
-     * @param string $style
+     * @param  string $style
      * @return string
      */
     public function url($style = '')
