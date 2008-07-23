@@ -6,7 +6,7 @@ require_once 'Gem/Manipulator/Interface.php';
  * @category   Gem
  * @package    Gem_Manipulator
  */
-class Gem_Manipulator_ImageTransform implements Gem_Manipulator_Interface 
+class Gem_Manipulator_Adapter_ImageTransform implements Gem_Manipulator_Interface 
 {
     /**
      * Perfoms manipulation
