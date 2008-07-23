@@ -48,7 +48,7 @@ class Gem_Manipulator_ImageTransform implements Gem_Manipulator_Interface
         $response = $imageTransform->scaleByX($options->offsetGet('width'));
         if (PEAR::isError($response)) {
             throw new Gem_Manipulator_Exception($response->getMessage());
-        }        
+        }
 
         $response = $imageTransform->save($to);
         if (PEAR::isError($response)) {
