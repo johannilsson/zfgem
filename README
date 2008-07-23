@@ -1,24 +1,43 @@
-Gem
-===
+# Gem
 
 File uploading for Zend Framework 
 
-Introduction
-============ 
+## Introduction 
 
-Gem allows for easy file uploading and control over uploaded files. 
-gem works as an plugin to Zend_Db_Table
+Gem allows for easy file uploading and control over uploaded files. Gem works as 
+an plugin to Zend_Db_Table.
 
-Installation
-============
+### Example
 
-* Latest copy of Zend_Db_Table from the incubator.
+In the controller
 
-Credits
-=======
+  $photos = new Photos();
+  $this->view->photo = $photos->findOne(1);
+
+In the template
+
+  <img src="<?php echo $photo->file->url('small') $?>" alt="" />
+
+And in the Photos model we need some configuration
+
+  protected $_attachment = array(
+    'column' => 'file', 
+    'store_path' => 'path/to/store/your/uploads',
+    'styles' => array(
+        'small' => array('width' => 200), 
+        'medium' => array('width' => 400),
+        'large' => array('width' => 650)
+    ),
+  );
+
+## Installation
+
+Latest copy of Zend_Db_Table* from the incubator.
+
+
+## Credits
 
 Gem is inspired by PaperClip and UploadColumn that are available for 
 ruby on rails.
 
-License
-=======
+## License
