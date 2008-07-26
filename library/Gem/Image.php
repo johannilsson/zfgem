@@ -2,7 +2,7 @@
 
 require_once 'Gem/File.php';
 
-require_once 'Gem/Manipulator/ImageTransform.php';
+require_once 'Gem/Manipulate/ImageTransform.php';
 
 /**
  * 
@@ -10,8 +10,6 @@ require_once 'Gem/Manipulator/ImageTransform.php';
  */
 class Gem_Image extends Gem_File
 {
-    private $_styles;
-
     /**
      * Constructor
      *
@@ -57,13 +55,13 @@ class Gem_Image extends Gem_File
     }
 
     /**
-     * Apply manipulations specified by this set styles
+     * Apply manipulations on all styles
      *
      * @return self
      */
     public function applyManipulations()
     {
-        $manipulator = new Gem_Manipulator_ImageTransform();
+        $manipulator = new Gem_Manipulate_ImageTransform();
         foreach ($this->_styles as $styleName => $styleOptions)
         {
             $manipulator->manipulate($this->realPath(), $this->path() . '/'. $this->filename($styleName), $styleOptions);
