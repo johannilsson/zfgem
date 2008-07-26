@@ -3,7 +3,7 @@
 require_once 'Zend/Db/Table/Plugin/Abstract.php';
 require_once 'Gem/File.php';
 
-class Gem_Plugin_Image extends Zend_Db_Table_Plugin_Abstract
+class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
 {
     /**
      * Newly created attachment.
@@ -34,6 +34,11 @@ class Gem_Plugin_Image extends Zend_Db_Table_Plugin_Abstract
         return implode('/', $parts);
     }
 
+    /**
+     * Add styles to file.
+     *
+     * @param Gem_File $file
+     */
     private function _addStyles(Gem_File $file)
     {
         foreach ($this->_options['styles'] as $name => $options)
