@@ -3,34 +3,68 @@
 class Gem_Manipulate
 {
     /**
-     * Attached manipulators
+     * Manipulator
      *
-     * @var array
+     * @var string
      */
-    protected $_manipulators = array();
+    protected $_manipulator;
 
     /**
-     * Adds a manipulator to the end of the chain
+     * Constructor
      *
-     * @param  Gem_Manipulate_Interface $manipulator
-     * @return Gem_Manipulate Provides a fluent interface
+     * @param string $manipulator
      */
-    public function addManipulator(Gem_Manipulate_Interface $manipulator)
+    public function __construct($manipulator)
     {
-        $this->_manipulators[] = $manipulator;
-        return $this;
+        $this->_manipulator = $manipulator;
     }
 
     /**
      * Manipulates
      *
-     * @return void
+     * @return Gem_Manipulator
      */
-    public function manipulate()
+    public function manipulate($from, $to, $options)
     {
-        foreach ($this->_manipulators as $manipulator) {
-            $manipulator->manipulate();
-        }
+        $manipulator = $this->getManipulatorInstance($this->_manipulator);
+        $manipulator->manipulate($from, $to, $options);
+
         return $this;
+    }
+
+    /**
+     * Returns an manipulator instance based on its name.
+     *
+     * @param string $manipulator
+     * @return Gem_Manipulator_Instance
+     */
+    static public function getManipulatorInstance($manipulator)
+    {
+        $args = array();
+
+        if (is_array($manipulator)) {
+            $args = $manipulator;
+            $manipulator = array_shift($args);
+        }
+
+        // TODO: Move
+        $loader = new Zend_Loader_PluginLoader();
+        $loader->addPrefixPath('Gem_Manipulate_', 'Gem/Manipulate/');
+        $className = $loader->load($manipulator);
+
+        $class = new ReflectionClass($className);
+
+        if (!$class->implementsInterface('Gem_Manipulate_Interface')) {
+            require_once 'Gem/Manipulate/Exception.php';
+            throw new Gem_Manipulate_Exception('Manipulator must implement interface "Gem_Manipulate_Interface".');
+        }
+
+        if ($class->hasMethod('__construct')) {
+            $object = $class->newInstanceArgs($args);
+        } else {
+            $object = $class->newInstance();
+        }
+
+        return $object;
     }
 }

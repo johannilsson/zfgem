@@ -8,6 +8,7 @@ class Gem_File
 {
 	protected $_realPath;
 	protected $_originalFilename;
+	protected $_manipulator = '';
 	protected $_styles = array();
 
 	/**
@@ -16,10 +17,11 @@ class Gem_File
 	 * @param string $realPath
 	 * @param string $originalFilename
 	 */
-	public function __construct($realPath, $originalFilename)
+	public function __construct($realPath, $originalFilename, $manipulator = '')
 	{
 		$this->_realPath         = $realPath;
 		$this->_originalFilename = $originalFilename;
+		$this->_manipulator      = $manipulator;
 	}
 
 	/**
@@ -176,76 +178,36 @@ class Gem_File
 
     /**
      * The url
-     *
+     * 
      * Strips public and everything before from the real path, hopes that public
      * is the name of the public directory and nothing is named like that before.
      *
-     * @param  string $style
+     * @todo needs to be handle by some config instead.
      * @return string
      */
-    public function url($style = '')
+    public function url()
     {
         $path = $this->realPath();
         return substr($path, stripos($path, 'public') + 6);
     }
 
     /**
-     * Apply manipulations specified by this set styles
+     * Apply manipulations specified by styles
      *
      * @return self
      */
     public function applyManipulations()
     {
-        $manipulator = new Gem_Manipulate();
-        $loader = new Zend_Loader_PluginLoader();
-        $loader->addPrefixPath('Gem_Manipulate_', 'Gem/Manipulate/');
-        foreach ($this->_styles as $style) {
-            $manipulatorName = $loader->load($style['options']['manipulator']);
-            
-            //$manipulator = Zend_Loader::loadClass($manipulatorName);
-
-            $manipulation = self::getManipulatorInstance(array($manipulatorName, $this->realPath(), $this->path() . '/'. $this->filename($style['name']), $style['options']['width']));
-            $manipulator->addManipulator($manipulation);
-        }
-        
-        $manipulator->manipulate();
-        
-        //die('dsd');
-        
-        /*
-        $manipulator = new Gem_Manipulate_ImageTransform();
-        foreach ($this->_styles as $styleName => $styleOptions)
+        if (empty($this->_manipulator))
         {
-            $manipulator->manipulate($this->realPath(), $this->path() . '/'. $this->filename($styleName), $styleOptions);
+            return;
         }
-        return $this;
-        */
+
+        require_once 'Gem/Manipulate.php';
+        $manipulator = new Gem_Manipulate($this->_manipulator);
+        foreach ($this->_styles as $style) {
+            $manipulator->manipulate($this->realPath(), $this->path() . '/'. $this->filename($style['name']), $style['options']);
+        }
     }
-    
-    static public function getManipulatorInstance($plugin)
-    {
-        $args = array();
 
-        if (is_array($plugin)) {
-            $args = $plugin;
-            $plugin = array_shift($args);
-        }
-        
-        //$className = self::getPluginLoader()->load(ucfirst($plugin));
-        $class = new ReflectionClass($plugin);
-
-        /*
-        if (!$class->implementsInterface('Zend_Db_Table_Plugin_Interface')) {
-            require_once 'Zend/Db/Table/Plugin/Exception.php';
-            throw new Zend_Db_Table_Plugin_Exception('Plugin must implement interface "Zend_Db_Table_Plugin_Interface".');
-        }
-        */
-        if ($class->hasMethod('__construct')) {
-            $object = $class->newInstanceArgs($args);
-        } else {
-            $object = $class->newInstance();
-        }
-
-        return $object;
-    }
 }

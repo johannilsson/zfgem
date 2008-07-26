@@ -1,7 +1,7 @@
 <?php
 
 require_once 'Zend/Db/Table/Plugin/Abstract.php';
-require_once 'Gem/Image.php';
+require_once 'Gem/File.php';
 
 class Gem_Plugin_Image extends Zend_Db_Table_Plugin_Abstract
 {
@@ -55,7 +55,7 @@ class Gem_Plugin_Image extends Zend_Db_Table_Plugin_Abstract
     {
         if ($this->_options['column'] == $columnName)
         {
-            $value = new Gem_File($this->_createRealPath($row, $value), $value);
+            $value = new Gem_File($this->_createRealPath($row, $value), $value, $this->_options['manipulator']);
             $this->_addStyles($value);
 
         }
@@ -77,12 +77,12 @@ class Gem_Plugin_Image extends Zend_Db_Table_Plugin_Abstract
             // Is it a file upload?
             if ($value instanceof App_Form_Element_FileValue)
             {
-                $this->_attachment = new Gem_File($value->offsetGet('tmp_name'), $value->offsetGet('name'));
+                $this->_attachment = new Gem_File($value->offsetGet('tmp_name'), $value->offsetGet('name'), $this->_options['manipulator']);
             }
             // Is it a path to an existing file?
             else if ( ($fileInfo = new SplFileInfo($value)) && $fileInfo->isFile() )
             {
-                $this->_attachment = new Gem_File($fileInfo->getRealPath(), $fileInfo->getFilename());
+                $this->_attachment = new Gem_File($fileInfo->getRealPath(), $fileInfo->getFilename(), $this->_options['manipulator']);
             }
             else
             {
