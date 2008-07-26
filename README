@@ -14,25 +14,25 @@ In the controller
   $photos = new Photos();
   $this->view->photo = $photos->findOne(1);
 
-In the template
-
-  <img src="<?php echo $photo->file->url('small') $?>" alt="" />
-
 And in the Photos model we need some configuration
 
   protected $_attachment = array(
-    'column' => 'file', 
-    'store_path' => 'path/to/store/your/uploads',
-    'styles' => array(
-        'small' => array('width' => 200), 
-        'medium' => array('width' => 400),
-        'large' => array('width' => 650)
+    'column'      => 'file', 
+    'store_path'  => 'path/to/store/your/uploads',
+    'styles'      => array(
+      'small'  => array('width'  => 200), 
+      'medium' => array('width'  => 400),
+      'large'  => array('width'  => 650)
     ),
   );
 
+In the template to display a large version of the uploaded image.
+
+  <img src="<?php echo $photo->file->large->url() $?>" alt="" />
+
 ## Installation
 
-Latest copy of Zend_Db_Table* from the incubator.
+Latest copy of Zend_Db_Table* from the standard incubator.
 
 
 ## Credits
