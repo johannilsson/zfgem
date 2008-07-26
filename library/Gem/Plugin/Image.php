@@ -34,6 +34,14 @@ class Gem_Plugin_Image extends Zend_Db_Table_Plugin_Abstract
         return implode('/', $parts);
     }
 
+    private function _addStyles(Gem_File $file)
+    {
+        foreach ($this->_options['styles'] as $name => $options)
+        {
+            $file->addStyle($name, $options);
+        }        
+    }
+    
     /**
      * Hook for getting column data, if the requested column is an attachment
      * an instance of an Gem_Image object is returned.
@@ -47,7 +55,9 @@ class Gem_Plugin_Image extends Zend_Db_Table_Plugin_Abstract
     {
         if ($this->_options['column'] == $columnName)
         {
-            $value = new Gem_Image($this->_createRealPath($row, $value), $value, $this->_options['styles']);
+            $value = new Gem_File($this->_createRealPath($row, $value), $value);
+            $this->_addStyles($value);
+
         }
         return $value;
     }
@@ -67,12 +77,12 @@ class Gem_Plugin_Image extends Zend_Db_Table_Plugin_Abstract
             // Is it a file upload?
             if ($value instanceof App_Form_Element_FileValue)
             {
-                $this->_attachment = new Gem_Image($value->offsetGet('tmp_name'), $value->offsetGet('name'), $this->_options['styles']);
+                $this->_attachment = new Gem_File($value->offsetGet('tmp_name'), $value->offsetGet('name'));
             }
             // Is it a path to an existing file?
             else if ( ($fileInfo = new SplFileInfo($value)) && $fileInfo->isFile() )
             {
-                $this->_attachment = new Gem_Image($fileInfo->getRealPath(), $fileInfo->getFilename(), $this->_options['styles']);
+                $this->_attachment = new Gem_File($fileInfo->getRealPath(), $fileInfo->getFilename());
             }
             else
             {
@@ -80,6 +90,7 @@ class Gem_Plugin_Image extends Zend_Db_Table_Plugin_Abstract
                 throw new Exception('Not a valid attachment value ' . $value);
             }
 
+            $this->_addStyles($this->_attachment);
             $value = $this->_attachment->originalFilename();
         }
         return $value;
