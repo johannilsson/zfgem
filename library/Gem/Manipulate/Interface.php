@@ -4,7 +4,7 @@
  * @category   Gem
  * @package    Gem_Manipulator
  */
-interface Gem_Manipulator_Adapter_Interface
+interface Gem_Manipulate_Interface
 {
     /**
      * Perfoms manipulation
