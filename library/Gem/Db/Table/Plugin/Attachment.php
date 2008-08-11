@@ -77,24 +77,28 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
      */
     public function setColumn(Zend_Db_Table_Row_Abstract $row, $columnName, $value)
     {
-        if ($this->_options['column'] == $columnName)
-        {
+        if ($this->_options['column'] == $columnName) {
+            $filePath = '';
+            $fileName = '';
+
             // Is it a file upload?
-            if ($value instanceof App_Form_Element_FileValue)
-            {
-                $this->_attachment = new Gem_File($value->offsetGet('tmp_name'), $value->offsetGet('name'), $this->_options['manipulator']);
-            }
-            // Is it a path to an existing file?
-            else if ( ($fileInfo = new SplFileInfo($value)) && $fileInfo->isFile() )
-            {
-                $this->_attachment = new Gem_File($fileInfo->getRealPath(), $fileInfo->getFilename(), $this->_options['manipulator']);
-            }
-            else
-            {
-                // TODO: Is not working as expected.
+            if ($value instanceof ArrayObject) {
+                if (false === $value->offsetExists('tmp_name')) {
+                    throw new Exception('tmp_name must be set');
+                }
+                $filePath = $value->offsetGet('tmp_name');
+
+                if (true === $value->offsetExists('name')) {
+                    $fileName = $value->offsetGet('name');
+                }
+            } else if ( ($fileInfo = new SplFileInfo($value)) && $fileInfo->isFile() ) {
+                $filePath = $fileInfo->getRealPath();
+                $fileName = $fileInfo->getFilename();
+            } else {
                 throw new Exception('Not a valid attachment value ' . $value);
             }
 
+            $this->_attachment = new Gem_File($filePath, $fileName, $this->_options['manipulator']);
             $this->_addStyles($this->_attachment);
             $value = $this->_attachment->originalFilename();
         }
