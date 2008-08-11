@@ -53,10 +53,8 @@ class Gem_File
      */
     public function __get($name)
     {
-        foreach ($this->_styles as $style)
-        {
-            if ($name == $style['name'])
-            {
+        foreach ($this->_styles as $style) {
+            if ($name == $style['name']) {
                 return $style['instance'];
             }
         }
@@ -71,8 +69,7 @@ class Gem_File
      */
     public function filename($style = '')
     {
-        if ('' == $style)
-        {
+        if ('' == $style) {
             return basename($this->_realPath);
         }
         return $style . '-' . $this->filename();
@@ -100,8 +97,7 @@ class Gem_File
 
     public function isUploadedFile()
     {
-        if (is_uploaded_file($this->_realPath))
-        {
+        if (is_uploaded_file($this->_realPath)) {
             return true;
         }
         return false;
@@ -120,10 +116,8 @@ class Gem_File
     public function copyTo($destination)
     {
         $newDirectory = dirname($destination);
-        if (is_dir($newDirectory) || mkdir($newDirectory, 0755, true) !== false )
-        {
-            if (is_writable($newDirectory))
-            {
+        if (is_dir($newDirectory) || mkdir($newDirectory, 0755, true) !== false ) {
+            if (is_writable($newDirectory)) {
                 copy($this->_realPath, $destination);
                 $this->_realPath = $destination;
 
@@ -135,8 +129,7 @@ class Gem_File
 
     public function delete()
     {
-        if (unlink($this->_realPath) === false)
-        {
+        if (unlink($this->_realPath) === false) {
             throw new RuntimeException('Could not delete ' . $this->_realPath);
         }
     }
@@ -149,8 +142,7 @@ class Gem_File
 
     public function exists()
     {
-        if ($this->fileInfo()->isFile())
-        {
+        if ($this->fileInfo()->isFile()) {
             return true;
         }
         return false;
@@ -198,8 +190,7 @@ class Gem_File
      */
     public function applyManipulations()
     {
-        if (empty($this->_manipulator))
-        {
+        if (empty($this->_manipulator)) {
             return;
         }
 
@@ -209,5 +200,4 @@ class Gem_File
             $manipulator->manipulate($this->realPath(), $this->path() . '/'. $this->filename($style['name']), $style['options']);
         }
     }
-
 }
