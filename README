@@ -9,31 +9,47 @@ an plugin to Zend_Db_Table.
 
 ### Example
 
-In the controller
+#### The Photo Model
 
-  $photos = new Photos();
-  $this->view->photo = $photos->findOne(1);
+    class Photos extends App_Db_Table
+    {
+        protected $_attachment = array(
+            'column'      => 'file', 
+            'store_path'  => /my/store/path/,
+            'manipulator' => 'ImageTransform',
+            'styles' => array(
+                'small' => array( 
+                     'width' => 200), 
+                'medium' => array( 
+                     'width' => 400),
+                'large' => array( 
+                     'width' => 650),
+            ),
+        );
+    
+        protected function _setupPlugins()
+        {
+            $attachment = new Gem_Db_Table_Plugin_Attachment($this->_attachment);
+            $this->addPlugin($attachment);
+        }
+    }
 
-And in the Photos model we need some configuration
+#### Controller and View
 
-  protected $_attachment = array(
-    'column'      => 'file', 
-    'store_path'  => 'path/to/store/your/uploads',
-    'styles'      => array(
-      'small'  => array('width'  => 200), 
-      'medium' => array('width'  => 400),
-      'large'  => array('width'  => 650)
-    ),
-  );
+In the controller create a new photo
 
-In the template to display a large version of the uploaded image.
+    $photos = new Photos();
+    $photo = $this->createRow();  
+    $photo->file = new ArrayObject($_FILES); // Or a real path to an existing file 
+    $photo->save();
 
-  <img src="<?php echo $photo->file->large->url() $?>" alt="" />
+In the view all you need to display a large version of the uploaded image is
+
+    echo $photo->file->large->url();
 
 ## Installation
 
 Latest copy of Zend_Db_Table* from the standard incubator.
-
 
 ## Credits
 
@@ -41,3 +57,5 @@ Gem is inspired by PaperClip and UploadColumn that are available for
 ruby on rails.
 
 ## License
+
+New BSD license, same as Zend Framework it self. 
