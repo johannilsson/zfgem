@@ -25,10 +25,25 @@ class Gem_File
     }
 
     /**
+     * Adds several styles at once.
+     *
+     * @param array $styles
+     * @return this
+     */
+    public function addStyles(array $styles)
+    {
+        foreach ($styles as $name => $options) {
+            $this->addStyle($name, $options);
+        }
+        return $this;
+    }
+
+    /**
      * Adds a new style to this file.
      *
      * @param string $name
      * @param array $options
+     * @return this
      */
     public function addStyle($name, array $options)
     {
@@ -39,7 +54,8 @@ class Gem_File
             'name'     => $name,
             'instance' => $instance,
             'options'  => $options,
-        );
+					);
+        return $this;
     }
 
     /**
