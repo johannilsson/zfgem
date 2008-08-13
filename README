@@ -53,6 +53,7 @@ Latest copy of Zend_Db_Table* from the standard incubator.
 
 ## Todo
 
+* Tests
 * Validation (file size, image size etc.)
 * Configuration, add usage of Zend_Config
 * More than images...

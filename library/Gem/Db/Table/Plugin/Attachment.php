@@ -35,18 +35,6 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
     }
 
     /**
-     * Add styles to file.
-     *
-     * @param Gem_File $file
-     */
-    private function _addStyles(Gem_File $file)
-    {
-        foreach ($this->_options['styles'] as $name => $options) {
-            $file->addStyle($name, $options);
-        }        
-    }
-    
-    /**
      * Hook for getting column data, if the requested column is an attachment
      * an instance of an Gem_Image object is returned.
      *
@@ -59,7 +47,7 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
     {
         if ($this->_options['column'] == $columnName) {
             $value = new Gem_File($this->_createRealPath($row, $value), $value, $this->_options['manipulator']);
-            $this->_addStyles($value);
+            $this->_attachment->addStyles($this->_options['styles']);
         }
         return $value;
     }
@@ -78,7 +66,6 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
             $filePath = '';
             $fileName = '';
 
-            // Is it a file upload?
             if ($value instanceof ArrayObject) {
                 if (false === $value->offsetExists('tmp_name')) {
                     throw new Exception('tmp_name must be set');
@@ -96,7 +83,8 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
             }
 
             $this->_attachment = new Gem_File($filePath, $fileName, $this->_options['manipulator']);
-            $this->_addStyles($this->_attachment);
+            $this->_attachment->addStyles($this->_options['styles']);
+
             $value = $this->_attachment->originalFilename();
         }
         return $value;
