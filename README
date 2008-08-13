@@ -51,6 +51,14 @@ In the view all you need to display a large version of the uploaded image is
 
 Latest copy of Zend_Db_Table* from the standard incubator.
 
+## Todo
+
+* Tests
+* Validation (file size, image size etc.)
+* Configuration, add usage of Zend_Config
+* More than images...
+* Manipulator changes
+
 ## Credits
 
 Gem is inspired by PaperClip and UploadColumn that are available for 
