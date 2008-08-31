@@ -4,14 +4,14 @@ File uploading for Zend Framework
 
 ## Introduction 
 
-Gem allows for easy file uploading and control over uploaded files. Gem works as 
-an plugin to Zend_Db_Table.
+Gem allows for easy file uploading and control over uploaded files. Gem works 
+as an plugin to Zend_Db_Table using the proposed [Zend_Db_Table_Plugin][1].
 
-### Example
+### Usage
 
 #### The Photo Model
 
-    class Photos extends App_Db_Table
+    class Photos extends Zend_Db_Table_Abstract
     {
         protected $_attachment = array(
             'column'      => 'file', 
@@ -36,24 +36,39 @@ an plugin to Zend_Db_Table.
 
 #### Controller and View
 
-In the controller create a new photo
+In the controller create a new photo from a form post, you probably want to 
+use Zend_Form and Zend_Form_Element_File instead but kiss for know.
 
     $photos = new Photos();
     $photo = $this->createRow();  
-    $photo->file = new ArrayObject($_FILES); // Or a real path to an existing file 
+    $photo->file = new ArrayObject($_FILES['userfile']); // Or a real path to an existing file 
     $photo->save();
 
-In the view all you need to display a large version of the uploaded image is
+Once we call save the image is moved to the path specified in the model, and 
+the manipulator that is specified will do its manipulations. In this example 
+it will give us four different version of the uploaded file including the 
+original.
 
+Once saved all we need to to display the image is to retrive it and pass it to 
+the view.
+
+    $photos = new Photos();
+    $this->view->photo = $photos->fetchRow($photos->select()->where('id = ?', 1));
+
+In the view all you need to do to echo the url to the three versions of the 
+file is the following. Just put it toghether in a img element and you are done.
+
+    echo $photo->file->small->url();
+    echo $photo->file->medium->url();
     echo $photo->file->large->url();
 
-## Installation
+## Requirement
 
-Latest copy of Zend_Db_Table* from the standard incubator.
+* Zend framework standard [incubator][2] in the include path
+* PEAR package [Image_Transform][3]
 
 ## Todo
 
-* Tests
 * Validation (file size, image size etc.)
 * Configuration, add usage of Zend_Config
 * More than images...
@@ -61,8 +76,16 @@ Latest copy of Zend_Db_Table* from the standard incubator.
 
 ## Credits
 
-Gem is inspired by PaperClip and UploadColumn that are available for ruby on rails.
+Gem is inspired by [PaperClip][4] and [UploadColumn][5] that are available for 
+ruby on rails.
 
 ## License
 
 New BSD license, same as Zend Framework it self. 
+
+
+[1]: http://framework.zend.com/wiki/display/ZFPROP/Zend_Db_Table_Plugin+-+Simon+Mundy%2C+Jack+Sleight  "Zend_Db_Table_Plugin"
+[2]: http://framework.zend.com/svn/framework/standard/incubator/ "Zend Standard Incubator"
+[3]: http://pear.php.net/package/Image_Transform "Image_Transform"
+[4]: http://www.thoughtbot.com/projects/paperclip "PaperClip"
+[5]: http://uploadcolumn.rubyforge.org/ "UploadColumn"
