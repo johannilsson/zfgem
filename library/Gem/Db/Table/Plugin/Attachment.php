@@ -31,6 +31,7 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
             $row->id,
             $filename
         );
+
         return implode('/', $parts);
     }
 
@@ -45,9 +46,10 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
      */
     public function getColumn(Zend_Db_Table_Row_Abstract $row, $columnName, $value)
     {
-        if ($this->_options['column'] == $columnName) {
+        if ($this->_options['column'] == $columnName 
+                && false === $value instanceof Gem_File) {
             $value = new Gem_File($this->_createRealPath($row, $value), $value, $this->_options['manipulator']);
-            $this->_attachment->addStyles($this->_options['styles']);
+            $value->addStyles($this->_options['styles']);
         }
         return $value;
     }
