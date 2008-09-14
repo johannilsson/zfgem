@@ -82,20 +82,24 @@ class Gem_Manipulate_ImageTransform implements Gem_Manipulate_Interface
      */
     private function _cropResize($imageTransform, $width, $height)
     {
-        $aspectRatio = $imageTransform->getImageWidth() / $imageTransform->getImageHeight();
-        $newAspectRatio = $width / $height;
+        $imageWidth = $imageTransform->getImageWidth();
+        $imageHeight = $imageTransform->getImageHeight();
 
-        if ($newAspectRatio > $aspectRatio) {
-            $newWidth = round(($height * $aspectRatio));
-            $newHeight = $height;
-        } else {
-            $newWidth = $width;
-            $newHeight = round(($width * $aspectRatio));
+        $dimensions = $this->_extractDimensions($imageWidth, $imageHeight, $width, $height);
+        $newWidth = $dimensions['width'];
+        $newHeight = $dimensions['height'];
+
+        $minNewLength = $newWidth <= $newHeight ? $newWidth : $newHeight;
+        $minLength = $width <= $height ? $width : $height;
+
+        // Compensate on some square image crops
+        if ($width == $height && $minNewLength < $minLength) {
+            $diff = $minLength - $minNewLength;
+            $newWidth = $dimensions['width'] + $diff;
+            $newHeight = $dimensions['height'] + $diff;
         }
 
-        $maxLength = $newWidth >= $newHeight ? $newWidth : $newHeight;
-
-        $response = $imageTransform->scaleMaxLength($maxLength);
+        $response = $imageTransform->resize($newWidth, $newHeight);
         if (PEAR::isError($response)) {
             throw new Gem_Manipulator_Exception($response->getMessage());
         }
@@ -104,5 +108,21 @@ class Gem_Manipulate_ImageTransform implements Gem_Manipulate_Interface
         if (PEAR::isError($response)) {
             throw new Gem_Manipulator_Exception($response->getMessage());
         }
+    }
+
+    /**
+     * 
+     */
+    private function _extractDimensions($imageWidth, $imageHeight, $width, $height)
+    {
+        $aspectRatio = $imageWidth / $imageHeight;
+
+        $newWidth = round(($height * $aspectRatio));
+        $newHeight = $height;
+
+        return array(
+            'width'  => $newWidth,
+            'height' => $newHeight, 
+        );
     }
 }
