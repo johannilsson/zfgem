@@ -88,6 +88,16 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
             $this->_attachment->addStyles($this->_options['styles']);
 
             $value = $this->_attachment->originalFilename();
+
+            // Set magic values if possible
+            if (array_key_exists("{$columnName}_filesize", $row->toArray())) {
+                $name = "{$columnName}_filesize";
+                $row->{$name} = $this->_attachment->size();
+            }
+            if (array_key_exists("{$columnName}_mime_type", $row->toArray())) {
+                $name = "{$columnName}_mime_type";
+                $row->{$name} = $this->_attachment->mimeContentType();
+            }
         }
         return $value;
     }
@@ -101,7 +111,17 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
     public function postSaveRow(Zend_Db_Table_Row_Abstract $row)
     {
         if (null !== $this->_attachment) {
-            $this->_attachment->moveTo($this->_createRealPath($row, $this->_attachment->originalFilename()));
+            $path = $this->_createRealPath($row, $this->_attachment->originalFilename());
+            if (file_exists(dirname($path))) {
+                foreach (new DirectoryIterator(dirname($path)) as $file) {
+                    if (true === $file->isFile()) {
+                        unlink($file->getPathName());
+                    }
+                }
+                rmdir(dirname($path));
+            }
+
+            $this->_attachment->moveTo($path);
             $this->_attachment->applyManipulations();
         }
     }
