@@ -132,7 +132,7 @@ class Gem_File
     public function copyTo($destination)
     {
         $newDirectory = dirname($destination);
-        if (is_dir($newDirectory) || mkdir($newDirectory, 0755, true) !== false ) {
+        if (is_dir($newDirectory) || @mkdir($newDirectory, 0755, true) !== false ) {
             if (is_writable($newDirectory)) {
                 copy($this->_realPath, $destination);
                 $this->_realPath = $destination;
@@ -174,14 +174,24 @@ class Gem_File
         return $this->_realPath;
     }
 
+    /**
+     * Return the size of this file
+     *
+     * @return int
+     */
     public function size()
     {
-        filesize($this->_realPath);
+        return filesize($this->_realPath);
     }
 
-    public function contentType()
+    /**
+     * Return the mime content type of this file
+     *
+     * @return string
+     */
+    public function mimeContentType()
     {
-
+        return mime_content_type($this->_realPath);
     }
 
     /**
