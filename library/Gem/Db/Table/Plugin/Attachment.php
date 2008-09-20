@@ -11,6 +11,8 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
      * @var unknown_type
      */
     private $_attachment = null;
+    
+    private $_isNew = false;
 
     /**
      * creates and returnes the real path of an attachment.
@@ -98,6 +100,9 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
                 $name = "{$columnName}_mime_type";
                 $row->{$name} = $this->_attachment->mimeContentType();
             }
+
+            // Mark as a new upload
+            $this->_isNew = true;
         }
         return $value;
     }
@@ -110,7 +115,7 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
      */
     public function postSaveRow(Zend_Db_Table_Row_Abstract $row)
     {
-        if (null !== $this->_attachment) {
+        if (null !== $this->_attachment && true === $this->_isNew) {
             $path = $this->_createRealPath($row, $this->_attachment->originalFilename());
             if (file_exists(dirname($path))) {
                 foreach (new DirectoryIterator(dirname($path)) as $file) {
@@ -123,6 +128,7 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
 
             $this->_attachment->moveTo($path);
             $this->_attachment->applyManipulations();
+            $this->_isNew = false;
         }
     }
 
