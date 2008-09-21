@@ -1,6 +1,7 @@
 <?php
 
 require_once 'Gem/Manipulate/Interface.php';
+require_once 'Gem/Manipulate/Exception.php';
 
 /**
  * @category   Gem
@@ -38,12 +39,12 @@ class Gem_Manipulate_ImageTransform implements Gem_Manipulate_Interface
          */
         $imageTransform = Image_Transform::factory('GD');
         if (PEAR::isError($imageTransform)) {
-            throw new Gem_Manipulator_Exception($imageTransform->getMessage());
+            throw new Gem_Manipulate_Exception($imageTransform->getMessage());
         }
 
         $response = $imageTransform->load($from);
         if (PEAR::isError($response)) {
-            throw new Gem_Manipulator_Exception($response->getMessage());
+            throw new Gem_Manipulate_Exception($response->getMessage());
         }
 
         if (empty($matches[1])) {
@@ -54,7 +55,7 @@ class Gem_Manipulate_ImageTransform implements Gem_Manipulate_Interface
 
         $response = $imageTransform->save($to);
         if (PEAR::isError($response)) {
-            throw new Gem_Manipulator_Exception($response->getMessage());
+            throw new Gem_Manipulate_Exception($response->getMessage());
         }
     }
 
