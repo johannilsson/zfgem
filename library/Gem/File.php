@@ -154,7 +154,9 @@ class Gem_File
     {
         foreach ($this->_styles as $style) {
             $instance = $style['instance'];
-            $instance->delete();
+            if ($instance->exists()) {
+                $instance->delete();
+            }
         }
         $path = $this->path();
         $this->delete();
