@@ -150,6 +150,17 @@ class Gem_File
         }
     }
 
+    public function deleteAll()
+    {
+        foreach ($this->_styles as $style) {
+            $instance = $style['instance'];
+            $instance->delete();
+        }
+        $path = $this->path();
+        $this->delete();
+        rmdir($path);
+    }
+
     public function touch($time = 'now')
     {
         touch($this->_realPath, strtotime($time));

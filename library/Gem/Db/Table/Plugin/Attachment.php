@@ -132,4 +132,17 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
         }
     }
 
+    /**
+     * Deletes attachment and styles assocciated with it.
+     *
+     * @param Zend_Db_Table_Row_Abstract $row     
+     */
+    public function preDeleteRow(Zend_Db_Table_Row_Abstract $row)
+    {
+        $columnName = $this->_options['column'];
+        if (array_key_exists($columnName, $row->toArray())) {
+            $attachment = $row->{$columnName};
+            $attachment->deleteAll();
+        }
+    }
 }
