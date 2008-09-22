@@ -16,6 +16,8 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
 
     private $_inflector = null;
 
+    private $_defaultTarget = ':model/:id';
+
     /**
      * creates and returnes the real path of an attachment.
      *
@@ -25,7 +27,7 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
      */
     private function _createRealPath(Zend_Db_Table_Row_Abstract $row, $filename)
     {
-        $storePath = $this->getFilteredStorePath();
+        $storePath = $this->getFilteredStorePath($row);
 
         $parts = array(
             $storePath,
@@ -35,13 +37,13 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
         return implode('/', $parts);
     }
 
-    public function getFilteredStorePath()
+    public function getFilteredStorePath(Zend_Db_Table_Row_Abstract $row)
     {
         if (false === isset($this->_options['store_path'])) {
             throw new Exception('"store_path" must be set in the configuration');
         }
 
-        $inflector = $this->getInflector($this->_options['store_path']);
+        $inflector = $this->getInflector(implode('/', array($this->_options['store_path'], $this->_defaultTarget)));
         $storePath = $inflector->filter(array(
             'id'    => $row->id, 
             'model' => $row->getTableClass(),
