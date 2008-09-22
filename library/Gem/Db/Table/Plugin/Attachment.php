@@ -11,8 +11,10 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
      * @var unknown_type
      */
     private $_attachment = null;
-    
+
     private $_isNew = false;
+
+    private $_inflector = null;
 
     /**
      * creates and returnes the real path of an attachment.
@@ -23,18 +25,49 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
      */
     private function _createRealPath(Zend_Db_Table_Row_Abstract $row, $filename)
     {
-        // TODO: Try guessing the store_path if not set.
-        // TODO: Make this path configuable, now it is hardcoded to 
-        // /store/path/tableName/id/filename
+        $storePath = $this->getFilteredStorePath();
 
         $parts = array(
-            $this->_options['store_path'],
-            strtolower($row->getTableClass()),
-            $row->id,
+            $storePath,
             $filename
         );
 
         return implode('/', $parts);
+    }
+
+    public function getFilteredStorePath()
+    {
+        if (false === isset($this->_options['store_path'])) {
+            throw new Exception('"store_path" must be set in the configuration');
+        }
+
+        $inflector = $this->getInflector($this->_options['store_path']);
+        $storePath = $inflector->filter(array(
+            'id'    => $row->id, 
+            'model' => $row->getTableClass(),
+            //'year'  => date(date('Y'), time()),
+            //'month' => date(date('m'), time()),
+            //'day'   => date(date('d'), time()),
+        ));
+
+        return $storePath;
+    }
+
+    public function getInflector($target = null)
+    {
+        if (null === $this->_inflector) {
+            $this->_inflector = new Zend_Filter_Inflector($target);
+            // TODO: Fix rules
+            $this->_inflector->setRules(array(
+                ':model'  => array('StringToLower'),
+                ':id'     => array('StringToLower'),
+                //':year'   => array('StringToLower'),
+                //':month'  => array('StringToLower'),
+                //':day'    => array('StringToLower'),
+            ));        
+        }
+
+        return $this->_inflector;    
     }
 
     /**
