@@ -145,8 +145,10 @@ class Gem_File
 
     public function delete()
     {
-        if (unlink($this->_realPath) === false) {
-            throw new RuntimeException('Could not delete ' . $this->_realPath);
+        if (true === $this->exists()) {
+            if (unlink($this->_realPath) === false) {
+                throw new RuntimeException('Could not delete ' . $this->_realPath);
+            }
         }
     }
 
@@ -154,13 +156,9 @@ class Gem_File
     {
         foreach ($this->_styles as $style) {
             $instance = $style['instance'];
-            if ($instance->exists()) {
-                $instance->delete();
-            }
+            $instance->delete();
         }
-        $path = $this->path();
         $this->delete();
-        rmdir($path);
     }
 
     public function touch($time = 'now')

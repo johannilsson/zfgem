@@ -12,6 +12,8 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
      */
     private $_attachment = null;
 
+    private $_previousAttachment = null;
+
     private $_isNew = false;
 
     private $_inflector = null;
@@ -47,9 +49,9 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
         $storePath = $inflector->filter(array(
             'id'    => $row->id, 
             'model' => $row->getTableClass(),
-            //'year'  => date(date('Y'), time()),
-            //'month' => date(date('m'), time()),
-            //'day'   => date(date('d'), time()),
+            'year'  => date(date('Y'), time()),
+            'month' => date(date('m'), time()),
+            'day'   => date(date('d'), time()),
         ));
 
         return $storePath;
@@ -63,9 +65,9 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
             $this->_inflector->setRules(array(
                 ':model'  => array('StringToLower'),
                 ':id'     => array('StringToLower'),
-                //':year'   => array('StringToLower'),
-                //':month'  => array('StringToLower'),
-                //':day'    => array('StringToLower'),
+                ':year'   => array('StringToLower'),
+                ':month'  => array('StringToLower'),
+                ':day'    => array('StringToLower'),
             ));        
         }
 
@@ -84,7 +86,8 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
     public function getColumn(Zend_Db_Table_Row_Abstract $row, $columnName, $value)
     {
         if ($this->_options['column'] == $columnName 
-                && false === $value instanceof Gem_File) {
+                && false === $value instanceof Gem_File
+                && null !== $value) {
             $value = new Gem_File($this->_createRealPath($row, $value), $value, $this->_options['manipulator']);
             $value->addStyles($this->_options['styles']);
         }
@@ -102,6 +105,10 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
     public function setColumn(Zend_Db_Table_Row_Abstract $row, $columnName, $value)
     {
         if ($this->_options['column'] == $columnName) {
+
+            // Save previous attachment, will be set to null if not set before.
+            $this->_previousAttachment = $row->{$columnName};
+
             $filePath = '';
             $fileName = '';
 
@@ -151,15 +158,12 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
     public function postSaveRow(Zend_Db_Table_Row_Abstract $row)
     {
         if (null !== $this->_attachment && true === $this->_isNew) {
-            $path = $this->_createRealPath($row, $this->_attachment->originalFilename());
-            if (file_exists(dirname($path))) {
-                foreach (new DirectoryIterator(dirname($path)) as $file) {
-                    if (true === $file->isFile()) {
-                        unlink($file->getPathName());
-                    }
-                }
-                rmdir(dirname($path));
+
+            if (null !== $this->_previousAttachment) {
+                $this->_previousAttachment->deleteAll();
             }
+
+            $path = $this->_createRealPath($row, $this->_attachment->originalFilename());
 
             $this->_attachment->moveTo($path);
             $this->_attachment->applyManipulations();
