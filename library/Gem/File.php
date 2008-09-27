@@ -1,5 +1,18 @@
 <?php
-
+/**
+ * Gem - File Uploading for Zend Framework
+ *
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.
+ *
+ * @category   Gem
+ * @package    Gem_File
+ * @copyright  Copyright (c) 2008 Johan Nilsson. (http://www.markupartist.com)
+ * @license    New BSD License
+ */
+ 
 /**
  * File represention.
  *
@@ -16,6 +29,7 @@ class Gem_File
      *
      * @param string $realPath
      * @param string $originalFilename
+     * @param string $manipulator
      */
     public function __construct($realPath, $originalFilename, $manipulator = '')
     {
@@ -111,6 +125,11 @@ class Gem_File
         return $this->_originalFilename;
     }
 
+    /**
+     * Is this a file upload?
+     *
+     * @return boolean
+     */
     public function isUploadedFile()
     {
         if (is_uploaded_file($this->_realPath)) {
@@ -119,9 +138,14 @@ class Gem_File
         return false;
     }
 
+    /**
+     * Move this file
+     *
+     * @return this
+     */
     public function moveTo($destination)
     {
-        // TODO: Error handling and moving if not an upload.
+        // TODO: Error handling
         $copy = clone $this;
         $this->copyTo($destination)->touch();
         $copy->delete();
@@ -129,6 +153,12 @@ class Gem_File
         return $this;
     }
 
+    /**
+     * Copy this file
+     *
+     * @return this
+     * @throws RuntimeException // TODO Fix exeption
+     */
     public function copyTo($destination)
     {
         $newDirectory = dirname($destination);
@@ -143,6 +173,12 @@ class Gem_File
         throw new RuntimeException('Could not write to ' . $newDirectory);
     }
 
+    /**
+     * Delete this file
+     *
+     * @return void
+     * @throws RuntimeException // TODO Fix exeption
+     */
     public function delete()
     {
         if (true === $this->exists()) {
@@ -152,6 +188,12 @@ class Gem_File
         }
     }
 
+    /**
+     * Delete this file and its assocciated styles
+     *
+     * @return void
+     * @throws RuntimeException // TODO Fix exeption
+     */
     public function deleteAll()
     {
         foreach ($this->_styles as $style) {
@@ -161,12 +203,23 @@ class Gem_File
         $this->delete();
     }
 
+    /**
+     * Touch, creates an empty file place holder
+     *
+     * @param string $time Will be parsed by strtotime
+     * @return this
+     */
     public function touch($time = 'now')
     {
         touch($this->_realPath, strtotime($time));
         return $this;
     }
 
+    /**
+     * Does this file exists?
+     *
+     * @return boolean
+     */
     public function exists()
     {
         if ($this->fileInfo()->isFile()) {
@@ -175,11 +228,21 @@ class Gem_File
         return false;
     }
 
+    /**
+     * Get the path to this file
+     *
+     * @return string
+     */
     public function path()
     {
         return dirname($this->_realPath);
     }
 
+    /**
+     * Get the real path to this path, that is with its file name included
+     *
+     * @return string
+     */
     public function realPath()
     {
         return $this->_realPath;
@@ -223,7 +286,7 @@ class Gem_File
     /**
      * Apply manipulations specified by styles
      *
-     * @return self
+     * @return this
      */
     public function applyManipulations()
     {
