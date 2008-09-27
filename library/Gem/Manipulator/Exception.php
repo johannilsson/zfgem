@@ -8,7 +8,7 @@
  * with this package in the file LICENSE.
  *
  * @category   Gem
- * @package    Gem_Manipulate
+ * @package    Gem_Manipulator
  * @copyright  Copyright (c) 2008 Johan Nilsson. (http://www.markupartist.com)
  * @license    New BSD License
  */
@@ -23,5 +23,5 @@ require_once 'Zend/Exception.php';
  * @category   Gem
  * @package    Gem_Manipulator
  */
-class Gem_Manipulate_Exception extends Zend_Exception
+class Gem_Manipulator_Exception extends Zend_Exception
 {}

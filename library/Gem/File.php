@@ -294,10 +294,12 @@ class Gem_File
             return;
         }
 
-        require_once 'Gem/Manipulate.php';
-        $manipulator = new Gem_Manipulate($this->_manipulator);
+        require_once 'Gem/Manipulator.php';
+        $manipulator = new Gem_Manipulator($this->_manipulator);
         foreach ($this->_styles as $style) {
-            $manipulator->manipulate($this->realPath(), $this->path() . '/'. $this->filename($style['name']), $style['options']);
+            $manipulator->manipulate($this->realPath(), 
+                $this->path() . '/'. $this->filename($style['name']), 
+                $style['options']);
         }
     }
 }
