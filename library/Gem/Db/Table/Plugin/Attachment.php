@@ -1,24 +1,68 @@
 <?php
+/**
+ * Gem - File Uploading for Zend Framework
+ *
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.
+ *
+ * @category   Gem
+ * @package    Gem_Db_Table_Plugin
+ * @copyright  Copyright (c) 2008 Johan Nilsson. (http://www.markupartist.com)
+ * @license    New BSD License
+ */
 
 require_once 'Zend/Db/Table/Plugin/Abstract.php';
 require_once 'Gem/File.php';
 
+/**
+ * Attachment Plugin for db table
+ *
+ */
 class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
 {
     /**
      * Newly created attachment.
      *
-     * @var unknown_type
+     * @var Gem_File
      */
     private $_attachment = null;
 
+    /**
+     * Previous created attachment if any
+     *
+     * @var Gem_File
+     */
     private $_previousAttachment = null;
 
+    /**
+     * Marked as new?
+     *
+     * @var boolean
+     */
     private $_isNew = false;
 
+    /**
+     * Inflector
+     *
+     * @var Filter_Inflector
+     */
     private $_inflector = null;
 
+    /**
+     * Inflector target
+     *
+     * @var string
+     */
     private $_defaultTarget = ':model/:id';
+
+    /**
+     * Callback to be used on the model for manipulating the store path
+     *
+     * @var storePath
+     */
+    private $_storePathCallback = "getAttachmentStorePath";
 
     /**
      * creates and returnes the real path of an attachment.
@@ -27,36 +71,66 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
      * @param string $filename
      * @return string
      */
-    private function _createRealPath(Zend_Db_Table_Row_Abstract $row, $filename)
+    public function getRealPath(Zend_Db_Table_Row_Abstract $row, $filename)
     {
-        $storePath = $this->getFilteredStorePath($row);
-
         $parts = array(
-            $storePath,
+            $this->getStorePath($row),
             $filename
         );
 
         return implode('/', $parts);
     }
 
-    public function getFilteredStorePath(Zend_Db_Table_Row_Abstract $row)
+    /**
+     * Get store path string
+     *
+     * @param Zend_Db_Table_Row_Abstract $row
+     * @return string
+     */
+    public function getStorePath(Zend_Db_Table_Row_Abstract $row)
     {
-        if (false === isset($this->_options['store_path'])) {
-            throw new Exception('"store_path" must be set in the configuration');
-        }
+        $inflector = $this->getInflector();
+        $modelName = $row->getTableClass();
+        $storePath = "";
+        if (method_exists($modelName, $this->_storePathCallback)) {
+            $storePath = call_user_func_array(array($modelName, $this->_storePathCallback), array($inflector, $row));
+        } else {
+            if (false === isset($this->_options['store_path'])) {
+                throw new Exception('"store_path" must be set in the configuration');
+            }
+            
+            if (isset($this->_options['store_target'])) {
+                $target = $this->_options['store_target'];
+            } else {
+                $target = $this->_defaultTarget;
+            }
 
-        $inflector = $this->getInflector(implode('/', array($this->_options['store_path'], $this->_defaultTarget)));
-        $storePath = $inflector->filter(array(
-            'id'    => $row->id, 
-            'model' => $row->getTableClass(),
-            'year'  => date(date('Y'), time()),
-            'month' => date(date('m'), time()),
-            'day'   => date(date('d'), time()),
-        ));
+            $inflector->setTarget(implode('/', array($this->_options['store_path'], $target)));
+
+            $source = array(
+                'id'    => $row->id, 
+                'model' => $modelName,
+            );
+
+            if (array_key_exists("created_on", $row->toArray())) {
+                $source['year']  = date('Y', strtotime($row->created_on));
+                $source['month'] = date('m', strtotime($row->created_on));
+                $source['day']   = date('d', strtotime($row->created_on));
+            }
+
+            $storePath = $inflector->filter($source);
+        }
 
         return $storePath;
     }
 
+    /**
+     * creates and returnes the real path of an attachment.
+     *
+     * @param Zend_Db_Table_Row_Abstract $row
+     * @param string $filename
+     * @return string
+     */
     public function getInflector($target = null)
     {
         if (null === $this->_inflector) {
@@ -88,7 +162,7 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
         if ($this->_options['column'] == $columnName 
                 && false === $value instanceof Gem_File
                 && null !== $value) {
-            $value = new Gem_File($this->_createRealPath($row, $value), $value, $this->_options['manipulator']);
+            $value = new Gem_File($this->getRealPath($row, $value), $value, $this->_options['manipulator']);
             $value->addStyles($this->_options['styles']);
         }
         return $value;
@@ -163,7 +237,7 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
                 $this->_previousAttachment->deleteAll();
             }
 
-            $path = $this->_createRealPath($row, $this->_attachment->originalFilename());
+            $path = $this->getRealPath($row, $this->_attachment->originalFilename());
 
             $this->_attachment->moveTo($path);
             $this->_attachment->applyManipulations();
