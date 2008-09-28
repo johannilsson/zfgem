@@ -13,14 +13,14 @@
  * @license    New BSD License
  */
 
-require_once 'Gem/Manipulator/Interface.php';
-require_once 'Gem/Manipulator/Exception.php';
+require_once 'Gem/Manipulator/Adapter/Interface.php';
+require_once 'Gem/Manipulator/Adapter/Exception.php';
 
 /**
  * @category   Gem
  * @package    Gem_Manipulator
  */
-class Gem_Manipulator_ImageTransform implements Gem_Manipulator_Interface
+class Gem_Manipulator_Adapter_ImageTransform implements Gem_Manipulator_Adapter_Interface
 {
     /**
      * Perfoms manipulation
@@ -28,17 +28,17 @@ class Gem_Manipulator_ImageTransform implements Gem_Manipulator_Interface
      */
     public function manipulate($from, $to, $options)
     {
-        if (!isset($options['size'])) {
-            throw new Gem_Manipulator_Exception('ImageTransform requires the \'size\' option to be set');
+        if (!isset($options['geometry'])) {
+            throw new Gem_Manipulator_Adapter_Exception('ImageTransform requires the \'geometry\' option to be set');
         }
         $matches = array();
-        preg_match('/(c)?([0-9]+)x([0-9]+)/', $options['size'], $matches);
+        preg_match('/(c)?([0-9]+)x([0-9]+)/', $options['geometry'], $matches);
 
         if (empty($matches[2])) {
-            throw new Gem_Manipulator_Exception('Invalid size pattern \'' . $options['size']  . '\'');
+            throw new Gem_Manipulator_Adapter_Exception('Invalid geometry pattern \'' . $options['geometry']  . '\'');
         }
         if (empty($matches[3])) {
-            throw new Gem_Manipulator_Exception('Invalid size pattern \'' . $options['size'] . '\'');
+            throw new Gem_Manipulator_Adapter_Exception('Invalid geometry pattern \'' . $options['geometry'] . '\'');
         }
 
         /*
@@ -52,12 +52,12 @@ class Gem_Manipulator_ImageTransform implements Gem_Manipulator_Interface
          */
         $imageTransform = Image_Transform::factory('GD');
         if (PEAR::isError($imageTransform)) {
-            throw new Gem_Manipulator_Exception($imageTransform->getMessage());
+            throw new Gem_Manipulator_Adapter_Exception($imageTransform->getMessage());
         }
 
         $response = $imageTransform->load($from);
         if (PEAR::isError($response)) {
-            throw new Gem_Manipulator_Exception($response->getMessage());
+            throw new Gem_Manipulator_Adapter_Exception($response->getMessage());
         }
 
         if (empty($matches[1])) {
@@ -68,7 +68,7 @@ class Gem_Manipulator_ImageTransform implements Gem_Manipulator_Interface
 
         $response = $imageTransform->save($to);
         if (PEAR::isError($response)) {
-            throw new Gem_Manipulator_Exception($response->getMessage());
+            throw new Gem_Manipulator_Adapter_Exception($response->getMessage());
         }
     }
 
@@ -83,7 +83,7 @@ class Gem_Manipulator_ImageTransform implements Gem_Manipulator_Interface
     {
         $response = $imageTransform->fit($width, $height);
         if (PEAR::isError($response)) {
-            throw new Gem_Manipulator_Exception($response->getMessage());
+            throw new Gem_Manipulator_Adapter_Exception($response->getMessage());
         }
     }
 
@@ -115,12 +115,12 @@ class Gem_Manipulator_ImageTransform implements Gem_Manipulator_Interface
 
         $response = $imageTransform->resize($newWidth, $newHeight);
         if (PEAR::isError($response)) {
-            throw new Gem_Manipulator_Exception($response->getMessage());
+            throw new Gem_Manipulator_Adapter_Exception($response->getMessage());
         }
 
         $response = $imageTransform->crop($width, $height);
         if (PEAR::isError($response)) {
-            throw new Gem_Manipulator_Exception($response->getMessage());
+            throw new Gem_Manipulator_Adapter_Exception($response->getMessage());
         }
     }
 

@@ -14,20 +14,14 @@
  */
 
 /**
- * Interface for manipulators
- * 
+ * @see Zend_Exception
+ */
+require_once 'Zend/Exception.php';
+
+
+/**
  * @category   Gem
  * @package    Gem_Manipulator
  */
-interface Gem_Manipulator_Interface
-{
-
-    /**
-     * Perfoms manipulation
-     *
-     * @param string $from
-     * @param string $to
-     * @param string $options
-     */
-    public function manipulate($from, $to, $options);
-}
+class Gem_Manipulator_Adapter_Exception extends Zend_Exception
+{}
