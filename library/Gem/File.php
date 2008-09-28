@@ -139,13 +139,27 @@ class Gem_File
     }
 
     /**
+     * Wrapper for the php function move_uploaded_file
+     *
+     * @throws RuntimeException
+     * @return this
+     */
+    public function moveUploadedFile($destination)
+    {
+        if (false == move_uploaded_file($this->_realPath, $destination)) {
+            throw new RuntimeException('Could move uploaded file.');
+        }
+        $this->_realPath = $destination;
+        return this;
+    }
+
+    /**
      * Move this file
      *
      * @return this
      */
     public function moveTo($destination)
     {
-        // TODO: Error handling
         $copy = clone $this;
         $this->copyTo($destination)->touch();
         $copy->delete();
