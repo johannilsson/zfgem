@@ -183,6 +183,7 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
             // Save previous attachment, will be set to null if not set before.
             $this->_previousAttachment = $row->{$columnName};
 
+            // TODO: file path detection needs to be moved!!
             $filePath = '';
             $fileName = '';
 
@@ -195,6 +196,18 @@ class Gem_Db_Table_Plugin_Attachment extends Zend_Db_Table_Plugin_Abstract
                 if (true === $value->offsetExists('name')) {
                     $fileName = $value->offsetGet('name');
                 }
+
+                // TODO: Please replace with usage of the Zend_File_Transfer later on
+                if (false === file_exists($filePath)) {
+                    // See if the file is located in the systems tmp dir instead.
+                    $tempFile = tempnam(md5(uniqid(rand(), true)), '');
+                    $tmpdir = realpath(dirname($tempFile));
+                    $filePath = $tmpdir . '/' . $fileName;
+                    unlink($tempFile);
+                    if (false === file_exists($filePath)) {
+                        throw new Exception('Not a valid file upload');
+                    }
+                }                
             } else if ( ($fileInfo = new SplFileInfo($value)) && $fileInfo->isFile() ) {
                 $filePath = $fileInfo->getRealPath();
                 $fileName = $fileInfo->getFilename();
