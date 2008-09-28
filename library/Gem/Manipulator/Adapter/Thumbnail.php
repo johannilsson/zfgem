@@ -53,16 +53,21 @@ class Gem_Manipulator_Adapter_Thumbnail implements Gem_Manipulator_Adapter_Inter
             throw new Gem_Manipulator_Adapter_Exception('Invalid geometry pattern \'' . $options['geometry'] . '\'');
         }
 
-        $thumbnail = new Thumbnai($from);
+        $thumbnail = new Thumbnail($from);
 
+        // TODO: Fix error handling around this...
+        $quality = 80;
         if (false == $crop) {
             $thumbnail->resize($width, $height);
+            $quality = 100;
         } else if ($width == $height) {
-            $thumb->cropFromCenter($width);
+            // Well works for now... the crop for ImageTransform is a bit better
+            // but who cares?
+            $thumbnail->cropFromCenter($width);
         } else {
-            $thumb->crop(0, 0, $width, $height);
+            $thumbnail->crop(0, 0, $width, $height);
         }
 
-        $thumb->save($to, 80);
+        $thumbnail->save($to, $quality);
     }
 }
