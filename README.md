@@ -1,5 +1,8 @@
 File uploading for Zend Framework 
 
+*Warning* This was built as a prototype for a proposed plugn model for
+Zend Framework database and will not work with todays version of ZF.
+
 ## Introduction 
 
 Gem allows for easy file uploading and control of uploaded files. Gem works 
